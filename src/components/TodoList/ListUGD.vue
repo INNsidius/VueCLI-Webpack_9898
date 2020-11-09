@@ -12,6 +12,25 @@
          hide-details
        ></v-text-field>
        <v-spacer></v-spacer>
+
+
+
+        
+        <v-col
+        class="d-flex"
+        cols="12"
+        sm="6"
+      >
+        <v-select
+          :items="itemprior"
+          label="Prioritas"
+          dense
+          outlined
+        ></v-select>
+      </v-col>
+
+
+
        <v-btn color="success" dark @click="dialog = true">
          Tambah
        </v-btn>
@@ -21,9 +40,53 @@
          <v-btn small class="mr-2" @click="editItem(item)">
            edit
          </v-btn>
-         <v-btn small @click="deleteItem(item)">
+         <v-btn small @click=" [delCon=true, click2($event)]">
            delete
          </v-btn>
+
+
+
+         <v-dialog
+      v-model="delCon"
+      max-width="290"
+    >
+    <v-card>
+        <v-card-title class="headline">
+          Confirm
+        </v-card-title>
+
+        <v-card-text>
+          Yakin Delete?
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="green darken-1"
+            text
+            @click="delCon = false"
+          >
+            No
+          </v-btn>
+
+          <v-btn
+            color="green darken-1"
+            text
+            @click="deleteItem(item);delCon = false "
+          >
+            Yes
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
+
+
+
+
+
        </template>
      </v-data-table>
    </v-card>
@@ -78,6 +141,8 @@ export default {
    return {
      search: null,
      dialog: false,
+     delCon: false,
+     itemprior: ['Penting', 'Biasa', 'Tidak penting'],
      headers: [
        {
          text: "Task",
@@ -85,7 +150,7 @@ export default {
          sortable: true,
          value: "task",
        },
-       { text: "Priority", value: "priority" },
+       { text: "Priority",sortable: true, value: "priority" },
        { text: "Note", value: "note" },
        { text: "Actions", value: "actions" },
      ],
@@ -130,6 +195,11 @@ export default {
        note: null,
      };
    },
+   deleteItem(item) {
+    //    this.todos.pop(item);
+       const index = this.todos.indexOf(item)
+        this.todos.splice(index, 1)
+   }
  },
 };
 </script>

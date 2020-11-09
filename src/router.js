@@ -12,7 +12,7 @@ Vue.use(VueRouter);
 const router = new VueRouter({
    mode: "history",
    routes: [
- {
+        {   
            path: "/",
            name: "admin",
            component: importComponent('DashboardLayout'),
@@ -29,6 +29,12 @@ const router = new VueRouter({
                    name: "Guided",
                    component: importComponent('TodoList/List'),
                },
+               // UGD
+               {
+                path: "/ugd",
+                name: "UnGuided",
+                component: importComponent('TodoList/ListUGD'),
+            },
            ]
        },
    ]
