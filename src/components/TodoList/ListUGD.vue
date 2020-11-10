@@ -11,81 +11,29 @@
          single-line
          hide-details
        ></v-text-field>
-       <v-spacer></v-spacer>
-
-
-
-        
-        <v-col
-        class="d-flex"
-        cols="12"
-        sm="6"
-      >
+      <v-spacer>             
+       -
         <v-select
           :items="itemprior"
           label="Prioritas"
           dense
           outlined
         ></v-select>
-      </v-col>
-
-
-
+      </v-spacer>
+  
        <v-btn color="success" dark @click="dialog = true">
          Tambah
        </v-btn>
      </v-card-title>
      <v-data-table :headers="headers" :items="todos" :search="search">
+       
        <template v-slot:[`item.actions`]="{ item }">
          <v-btn small class="mr-2" @click="editItem(item)">
            edit
          </v-btn>
-         <v-btn small @click=" [delCon=true, click2($event)]">
+         <v-btn small @click="deleteItem(item)">
            delete
          </v-btn>
-
-
-
-         <v-dialog
-      v-model="delCon"
-      max-width="290"
-    >
-    <v-card>
-        <v-card-title class="headline">
-          Confirm
-        </v-card-title>
-
-        <v-card-text>
-          Yakin Delete?
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            color="green darken-1"
-            text
-            @click="delCon = false"
-          >
-            No
-          </v-btn>
-
-          <v-btn
-            color="green darken-1"
-            text
-            @click="deleteItem(item);delCon = false "
-          >
-            Yes
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-
-
-
-
-
 
        </template>
      </v-data-table>
@@ -94,7 +42,7 @@
    <v-dialog v-model="dialog" persistent max-width="600px">
      <v-card>
        <v-card-title>
-         <span class="headline">Form Todo</span>
+         <span class="headline"> {{ formTitle }} </span>
        </v-card-title>
        <v-card-text>
          <v-container>
@@ -123,26 +71,35 @@
          <v-btn color="blue darken-1" text @click="cancel">
            Cancel
          </v-btn>
+        <v-btn color="blue darken-1" text @click="resetForm">
+            Reset
+        </v-btn>
          <v-btn color="blue darken-1" text @click="save">
            Save
-         </v-btn>
-         <v-btn color="blue darken-1" text @click="resetForm">
-           Reset
          </v-btn>
        </v-card-actions>
      </v-card>
    </v-dialog>
  </v-main>
 </template>
+
+
 <script>
 export default {
  name: "List",
  data() {
    return {
+     enabled: null,
      search: null,
      dialog: false,
      delCon: false,
-     itemprior: ['Penting', 'Biasa', 'Tidak penting'],
+     editedIndex: -1,
+     editedItem: {
+        task: "",
+         priority: "",
+         note: "",
+      },
+     itemprior: ['All Priority','Penting', 'Biasa', 'Tidak penting'],
      headers: [
        {
          text: "Task",
@@ -151,7 +108,7 @@ export default {
          value: "task",
        },
        { text: "Priority",sortable: true, value: "priority" },
-       { text: "Note", value: "note" },
+       { text: "Note",sortable:false, value: "note" },
        { text: "Actions", value: "actions" },
      ],
      todos: [
@@ -178,12 +135,37 @@ export default {
      },
    };
  },
+
+ computed: {
+      formTitle () {
+        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+      },
+    },
+
+watch: {
+      dialog (val) {
+        val || this.close()
+      },
+    },
+
  methods: {
    save() {
-     this.todos.push(this.formTodo);
-     this.resetForm();
-     this.dialog = false;
+     if (this.editedIndex > -1) {
+          Object.assign(this.todos[this.editedIndex], this.formTodo)
+        } else {
+          this.todos.push(this.formTodo)
+        }
+        this.dialog = false;
    },
+
+  close () {
+        this.dialog = false
+        // this.$nextTick(() => {
+          this.formTodo = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        // })
+      },
+
    cancel() {
      this.resetForm();
      this.dialog = false;
@@ -195,11 +177,17 @@ export default {
        note: null,
      };
    },
+   
    deleteItem(item) {
-    //    this.todos.pop(item);
        const index = this.todos.indexOf(item)
-        this.todos.splice(index, 1)
-   }
+        confirm('Are you sure you want to delete this item?') && this.todos.splice(index, 1)
+   },
+
+   editItem(item){
+      this.editedIndex = this.todos.indexOf(item)
+      this.formTodo = Object.assign({}, item)
+      this.dialog = true
+   },
  },
 };
 </script>
